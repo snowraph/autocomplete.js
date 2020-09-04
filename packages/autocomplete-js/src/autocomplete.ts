@@ -75,6 +75,8 @@ export interface AutocompleteApi<TItem> extends AutocompleteSetters<TItem> {
   destroy(): void;
 }
 
+const isMobile = true;
+
 export function getDropdownPositionStyle({
   dropdownPlacement,
   container,
@@ -86,6 +88,12 @@ export function getDropdownPositionStyle({
 }) {
   const containerRect = container.getBoundingClientRect();
   const top = containerRect.top + containerRect.height;
+
+  if (isMobile) {
+    return {
+      position: 'relative',
+    };
+  }
 
   switch (dropdownPlacement) {
     case 'start': {
@@ -152,6 +160,11 @@ export function autocomplete<TItem>({
   const resetButton = document.createElement('button');
   const dropdown = document.createElement('div');
 
+  const mobileButton = document.createElement('button');
+  mobileButton.textContent = 'Search';
+  mobileButton.classList.add('aa-SearchButton');
+  const backButton = document.createElement('button');
+
   const autocomplete = createAutocomplete<TItem>({
     onStateChange(options) {
       const { state } = options;
@@ -182,6 +195,30 @@ export function autocomplete<TItem>({
       }),
     });
   }
+
+  setProperties(mobileButton, {
+    onClick(event: MouseEvent) {
+      event.preventDefault();
+
+      setProperties(root, {
+        hidden: false,
+      });
+      input.focus();
+    },
+  });
+  setProperties(backButton, {
+    onClick(event: MouseEvent) {
+      event.preventDefault();
+      autocomplete.setQuery('');
+      autocomplete.refresh();
+
+      setProperties(root, {
+        hidden: true,
+      });
+    },
+    class: 'aa-BackButton',
+    innerHTML: '<',
+  });
 
   setProperties(window as any, {
     ...autocomplete.getEnvironmentProps({
@@ -223,12 +260,25 @@ export function autocomplete<TItem>({
     ...autocomplete.getInputProps({ inputElement: input }),
     class: 'aa-Input',
   });
+  if (isMobile) {
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        autocomplete.setQuery('');
+        autocomplete.refresh();
+
+        setProperties(root, {
+          hidden: true,
+        });
+      }
+    });
+  }
   setProperties(completion, { class: 'aa-Completion' });
   setProperties(resetButton, {
     type: 'reset',
     textContent: 'ｘ',
     onClick: formProps.onReset,
-    class: 'aa-Reset',
+    class: 'aa-ResetButton',
   });
   setProperties(dropdown, {
     ...autocomplete.getDropdownProps(),
@@ -315,7 +365,11 @@ export function autocomplete<TItem>({
     renderDropdown({ root: dropdown, sections, state });
   }
 
-  inputWrapper.appendChild(label);
+  if (isMobile) {
+    inputWrapper.appendChild(backButton);
+  } else {
+    inputWrapper.appendChild(label);
+  }
   if (props.enableCompletion) {
     inputWrapper.appendChild(completion);
   }
@@ -324,11 +378,23 @@ export function autocomplete<TItem>({
   form.appendChild(inputWrapper);
   root.appendChild(form);
   root.appendChild(dropdown);
-  containerElement.appendChild(root);
+  if (isMobile) {
+    containerElement.appendChild(mobileButton);
+    setProperties(root, {
+      hidden: true,
+    });
+    root.classList.add('aa-Autocomplete--mobile');
+    document.body.appendChild(root);
+  } else {
+    containerElement.appendChild(root);
+  }
 
   setDropdownPosition();
 
   function destroy() {
+    if (isMobile) {
+      document.body.removeChild(root);
+    }
     containerElement.innerHTML = '';
     setProperties(window as any, {
       onResize: null,

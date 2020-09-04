@@ -13,6 +13,7 @@ const searchClient = algoliasearch(
 autocomplete({
   container: '#autocomplete',
   debug: true,
+  placeholder: 'Search',
   // dropdownPlacement: 'start',
   getSources() {
     return [
