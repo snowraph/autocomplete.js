@@ -21,8 +21,9 @@ const querySuggestionsPlugin = createQuerySuggestionsPlugin({
   },
 });
 
-autocomplete({
+window.autocomplete = autocomplete({
   container: '#autocomplete',
   openOnFocus: true,
+  debug: true,
   plugins: [recentSearchesPlugin, querySuggestionsPlugin],
 });

@@ -97,6 +97,16 @@ export type AutocompleteRenderer<TItem> = (params: {
   state: AutocompleteState<TItem>;
 }) => void;
 
+export type AutocompletePanelPlacement =
+  | 'start'
+  | 'end'
+  | 'full-width'
+  | 'input-wrapper-width';
+
+export type OnStageChange<TItem> = (params: {
+  state: AutocompleteState<TItem>;
+}) => void;
+
 export interface AutocompleteOptions<TItem>
   extends AutocompleteCoreOptions<TItem> {
   /**
@@ -112,7 +122,7 @@ export interface AutocompleteOptions<TItem>
    *
    * @default document.body
    */
-  panelContainer: string | HTMLElement;
+  panelContainer?: string | HTMLElement;
   getSources?: (
     params: GetSourcesParams<TItem>
   ) => MaybePromise<Array<AutocompleteSource<TItem>>>;
@@ -121,7 +131,7 @@ export interface AutocompleteOptions<TItem>
    *
    * @default "input-wrapper-width"
    */
-  panelPlacement?: 'start' | 'end' | 'full-width' | 'input-wrapper-width';
+  panelPlacement?: AutocompletePanelPlacement;
   /**
    * The class names to inject in each created DOM element.
    *
@@ -144,6 +154,7 @@ export interface AutocompleteOptions<TItem>
    * ```
    */
   render?: AutocompleteRenderer<TItem>;
+  onStateChange?: OnStageChange<TItem>;
 }
 
 export interface AutocompleteApi<TItem> extends AutocompleteCoreSetters<TItem> {

@@ -38,18 +38,20 @@ export function render<TItem>(
     input,
     panel,
   }: RenderProps<TItem>
-): () => void {
+): void {
   setPropertiesWithoutEvents(root, getRootProps());
   setPropertiesWithoutEvents(input, getInputProps({ inputElement: input }));
 
   panel.innerHTML = '';
+
+  console.log({ panelRoot, panel });
 
   if (!state.isOpen) {
     if (panelRoot.contains(panel)) {
       panelRoot.removeChild(panel);
     }
 
-    return () => {};
+    return;
   }
 
   if (!panelRoot.contains(panel)) {
@@ -118,8 +120,4 @@ export function render<TItem>(
   panel.appendChild(panelLayoutElement);
 
   renderer({ root: panelLayoutElement, sections, state });
-
-  return () => {
-    panelRoot.removeChild(panel);
-  };
 }

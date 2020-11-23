@@ -1,4 +1,4 @@
-export function createRef<TValue>(initialValue: TValue) {
+export function createRef<TValue>(initialValue: TValue): Ref<TValue> {
   return {
     current: initialValue,
   };
